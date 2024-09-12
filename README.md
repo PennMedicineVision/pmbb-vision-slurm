@@ -1,5 +1,5 @@
 # pmbb-vision-slurm
-Examples for using slurm on the Penn Cubic cluster to process PMBB data
+Examples for using slurm on the Penn Cubic cluster to process PMBB data. The array job examples are adapted from [https://blog.ronin.cloud/slurm-job-arrays/](https://blog.ronin.cloud/slurm-job-arrays/)
 
 ## array_job_explicit.sh 
 This script illustrates using an index file that explicitly assigns a task ID to each study to be processed. In this case the index file would look something like (data/test_index_explicit.csv):
