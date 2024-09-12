@@ -18,7 +18,7 @@ Index,PMBBID,StudyUID
 ```
 This can be tested by submitting via:
 ```
-sbatch -t1 array_job_explicit.sh
+sbatch --time=1 --partition=short --mem=10 array_job_explicit.sh
 ```
 
 ## array_job_implicit.sh 
@@ -38,5 +38,5 @@ PMBBK6630742998,2.25.331934967344314474390653110981139226657
 ```
 This can be tested by submitting via:
 ```
-sbatch -t1 array_job_implicit.sh
+sbatch --time=1 --partition=short --mem=10 array_job_implicit.sh
 ```
