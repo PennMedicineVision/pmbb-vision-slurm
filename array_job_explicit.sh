@@ -18,8 +18,11 @@ fi
 ibase=/cbica/projects/pmbb-vision/dicom
 obase=/cbica/projects/pmbb-vision/subjects
 
+# get subject and study info
 pmbbid=$(awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $2}' $index)
 study_uid=$(awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $3}' $index)
+
+# if additional params are needed, they can be included as columns and extracted here
 
 if [ "$pmbbid" == "" ]; then
   echo "No subject found for TaskID=${SLURM_ARRAY_TASK_ID}" 1>&2

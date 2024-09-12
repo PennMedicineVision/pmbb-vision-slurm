@@ -34,8 +34,12 @@ fi
 sub_line=$(head -n $offset $index | tail -n 1)
 echo $sub_line
 
+# get info for study
 pmbbid=$(echo $sub_line | cut -d "," -f1)
 study_uid=$(echo $sub_line | cut -d "," -f2)
+
+# if additional params are needed, they can be included as columns and extracted here
+
 
 d1=${pmbbid:4:4} 
 d2=${pmbbid:8:4}
