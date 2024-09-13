@@ -2,7 +2,7 @@
 Examples for using slurm on the Penn Cubic cluster to process PMBB data. The array job examples are adapted from [https://blog.ronin.cloud/slurm-job-arrays/](https://blog.ronin.cloud/slurm-job-arrays/)
 
 ## array_job_explicit.sh 
-This script illustrates using an index file that explicitly assigns a task ID to each study to be processed. In this case the index file would look something like (data/test_index_explicit.csv):
+This script illustrates using an index file that explicitly assigns a task ID to each study to be processed. In this case the index file would look something like [this](data/test_index_explicit.csv):
 ```
 Index,PMBBID,StudyUID
      1,PMBBF9350031529,2.25.313991534711542874945730579142217377317
@@ -22,7 +22,7 @@ sbatch --time=1 --partition=short --mem=10 array_job_explicit.sh
 ```
 
 ## array_job_implicit.sh 
-This script illustrates using an index file where we use (unlisted) row numbers to associate with the task ID for each study to be processed. In this case the index file would look something like (data/test_index_implicit.csv):
+This script illustrates using an index file where we use (unlisted) row numbers to associate with the task ID for each study to be processed. In this case the index file would look something like [this](data/test_index_implicit.csv):
 ```
 PMBBID,StudyUID
 PMBBF9350031529,2.25.313991534711542874945730579142217377317
