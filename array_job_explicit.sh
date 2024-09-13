@@ -35,7 +35,6 @@ d2=${pmbbid:8:4}
 in_dir="${ibase}/${d1}/${d2}/${pmbbid}/${study_uid}"
 out_dir="${obase}/${d1}/${d2}/${pmbbid}/${study_uid}"
 
-echo "Task: ${SLURM_ARRAY_TASK_ID}   Subject: ${pmbbid}   Study: ${study_uid}"
 
 # Does input directory exist
 if [ ! -e ${in_dir} ]; then
@@ -50,5 +49,6 @@ if [ -e ${out_dir} ]; then
 fi
 
 # do stuff
+echo "Task: ${SLURM_ARRAY_TASK_ID}   Subject: ${pmbbid}   Study: ${study_uid}"
 
 exit 0

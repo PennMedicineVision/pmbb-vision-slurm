@@ -22,17 +22,14 @@ obase=/cbica/projects/pmbb-vision/subjects-dev
 
 # add one due to header line in csv file
 offset=$((SLURM_ARRAY_TASK_ID + 1))
-echo "Offset=$offset"
 
 max_offset=$(cat $index | wc | xargs | cut -d " " -f1)
-echo "MaxOffset: $max_offset"
 if (( offset > max_offset )); then
     echo "TaskID exceeds array size" 1>&2
     exit 2
 fi
 
 sub_line=$(head -n $offset $index | tail -n 1)
-echo $sub_line
 
 # get info for study
 pmbbid=$(echo $sub_line | cut -d "," -f1)
@@ -47,7 +44,11 @@ d2=${pmbbid:8:4}
 in_dir="${ibase}/${d1}/${d2}/${pmbbid}/${study_uid}"
 out_dir="${obase}/${d1}/${d2}/${pmbbid}/${study_uid}"
 
-echo "Task: ${SLURM_ARRAY_TASK_ID}   Subject: ${pmbbid}   Study: ${study_uid}"
+# Does input directory exist
+if [ ! -e ${in_dir} ]; then
+    echo "${in_dir} does not exist" 1>&2
+    exit 3
+fi
 
 # Ideally index only has unprocessed data listed, but...
 if [ -e ${out_dir} ]; then
@@ -56,5 +57,6 @@ if [ -e ${out_dir} ]; then
 fi
 
 # do stuff
+echo "Task: ${SLURM_ARRAY_TASK_ID}   Subject: ${pmbbid}   Study: ${study_uid}"
 
 exit 0
