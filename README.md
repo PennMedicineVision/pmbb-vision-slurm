@@ -1,7 +1,10 @@
 # pmbb-vision-slurm
-Examples for using slurm on the Penn Cubic cluster to process PMBB data. The array job examples are adapted from [https://blog.ronin.cloud/slurm-job-arrays/](https://blog.ronin.cloud/slurm-job-arrays/)
+Examples for using slurm on the Penn Cubic cluster to process PMBB data. 
 
-## array_job_explicit.sh 
+## array jobs
+In order to process a large number of datasets efficiently on Cubic, it is preferred to run array jobs with many task, as opposed to submitting a job for each dataset. However, it is important to note that array jobs are currently limited to 40k tasks per job, so for large datasets it is still necessary to run multiple jobs. Below are some examples illustrating how to run array jobs to process PMBB imaging data. These are just dummy jobs that check to see if the input directory exists, but they can be easily adapted to perform actual processing which will require adjusting the parameters (time,mem,etc) to fit the specific requirements.  These array job examples are adapted from [https://blog.ronin.cloud/slurm-job-arrays/](https://blog.ronin.cloud/slurm-job-arrays/). Here we provide small example index files that are similar in format to the files in /cbica/projects/pmbb-vision/info/
+
+### array_job_explicit.sh 
 This script illustrates using an index file that explicitly assigns a task ID to each study to be processed. In this case the index file would look something like [this](data/test_index_explicit.csv):
 ```
 Index,PMBBID,StudyUID
@@ -21,7 +24,7 @@ This can be tested by submitting via:
 sbatch --time=1 --partition=short --mem=10 array_job_explicit.sh
 ```
 
-## array_job_implicit.sh 
+### array_job_implicit.sh 
 This script illustrates using an index file where we use (unlisted) row numbers to associate with the task ID for each study to be processed. In this case the index file would look something like [this](data/test_index_implicit.csv):
 ```
 PMBBID,StudyUID
