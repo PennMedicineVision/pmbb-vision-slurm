@@ -19,8 +19,13 @@ ibase=/cbica/projects/pmbb-vision/dicom
 obase=/cbica/projects/pmbb-vision/subjects
 
 # get subject and study info
-pmbbid=$(awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $2}' $index)
-study_uid=$(awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $3}' $index)
+cat="cat $index"
+if [ "$index" == "*.parquet" ]; then
+  cat="parquet-tools csv $index"
+fi
+ 
+pmbbid=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $2}')
+study_uid=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $3}')
 
 # if additional params are needed, they can be included as columns and extracted here
 
