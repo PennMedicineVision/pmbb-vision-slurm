@@ -23,13 +23,18 @@ obase=/cbica/projects/pmbb-vision/subjects-dev
 # add one due to header line in csv file
 offset=$((SLURM_ARRAY_TASK_ID + 1))
 
-max_offset=$(cat $index | wc | xargs | cut -d " " -f1)
+cat="cat $index"
+if [ "$index" == "*.parquet" ]; then
+  cat="parquet-tools csv $index"
+fi
+
+max_offset=$($cat | wc | xargs | cut -d " " -f1)
 if (( offset > max_offset )); then
     echo "TaskID exceeds array size" 1>&2
     exit 2
 fi
 
-sub_line=$(head -n $offset $index | tail -n 1)
+sub_line=$($cat | head -n $offset | tail -n 1)
 
 # get info for study
 pmbbid=$(echo $sub_line | cut -d "," -f1)
