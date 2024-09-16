@@ -24,6 +24,11 @@ This can be tested by submitting via:
 sbatch --time=1 --partition=short --mem=10 array_job_explicit.sh
 ```
 
+You could run a subset of the data in the index file via:
+```
+sbatch --array=5-10 --time=1 --partition=short --mem=10 array_job_explicit.sh
+```
+
 ### array_job_implicit.sh 
 This script illustrates using an index file where we use (unlisted) row numbers to associate with the task ID for each study to be processed. In this case the index file would look something like [this](data/test_index_implicit.csv):
 ```
