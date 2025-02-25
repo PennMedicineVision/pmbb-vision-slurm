@@ -23,14 +23,20 @@ cat="cat $index"
 if [ "$index" == "*.parquet" ]; then
   cat="parquet-tools csv $index"
 fi
- 
-pmbbid=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $2}')
-study_uid=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $3}')
+
+offset=$SLURM_ARRAY_TASK_ID
+#echo "Found offset of ${SLURM_ARRAY_TASK_ID_OFFSET}"
+if [ -n "${SLURM_ARRAY_TASK_ID_OFFSET}" ]; then
+  #echo "Using offset of ${SLURM_ARRAY_TASK_ID_OFFSET}"
+  offset=$((${SLURM_ARRAY_TASK_ID}+${SLURM_ARRAY_TASK_ID_OFFSET}))
+fi 
+pmbbid=$($cat | awk -F ',' -v TaskID=$offset '$1==TaskID {print $2}')
+study_uid=$($cat | awk -F ',' -v TaskID=$offset '$1==TaskID {print $3}')
 
 # if additional params are needed, they can be included as columns and extracted here
 
 if [ "$pmbbid" == "" ]; then
-  echo "No subject found for TaskID=${SLURM_ARRAY_TASK_ID}" 1>&2
+  echo "No subject found for TaskID=${SLURM_ARRAY_TASK_ID} Offset=${SLURM_ARRAY_TASK_ID}" 1>&2
   exit 2
 fi
 
@@ -54,6 +60,6 @@ if [ -e ${out_dir} ]; then
 fi
 
 # do stuff
-echo "Task: ${SLURM_ARRAY_TASK_ID}   Subject: ${pmbbid}   Study: ${study_uid}"
+echo "Task: ${SLURM_ARRAY_TASK_ID} Offset: ${offset}  Subject: ${pmbbid}   Study: ${study_uid}"
 
 exit 0
