@@ -29,6 +29,16 @@ You could run a subset of the data in the index file via:
 sbatch --array=5-10 --time=1 --partition=short --mem=10 array_job_explicit.sh
 ```
 
+If you try to pass array values that are too large you may see this error
+```
+sbatch: error: Batch job submission failed: Invalid job array specification
+```
+
+On cubic, "too large" is >= 100,000. To get around this, these scripts look for an environment variable named SLURM_ARRAY_TASK_ID_OFFSET. If this var is set, then it will be added to the SLURM_ARRAY_TASK_ID to get the index value used to pull the input info from the index file. For example, the following could be used to run jobs for rows with Index values 6-10.
+```
+sbatch --export=SLURM_ARRAY_TASK_ID_OFFSET='5' --array=1-5 --time=1 --partition=short --mem=10 array_job_explicit.sh
+```
+
 ### array_job_implicit.sh 
 This script illustrates using an index file where we use (unlisted) row numbers to associate with the task ID for each study to be processed. In this case the index file would look something like [this](data/test_index_implicit.csv):
 ```
