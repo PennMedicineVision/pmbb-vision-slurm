@@ -39,6 +39,13 @@ On cubic, "too large" is >= 100,000. To get around this, these scripts look for 
 sbatch --export=SLURM_ARRAY_TASK_ID_OFFSET='5' --array=1-5 --time=1 --partition=short --mem=10 array_job_explicit.sh
 ```
 
+So, in order to run 120k tasks, you could run something like the following
+```
+for i in `seq 1 30000 120000`; do
+  sbatch --export=SLURM_ARRAY_TASK_ID_OFFSET='$i' --array=0-29999 --time=1 --partition=short --mem=10 array_job_explicit.sh
+fi
+```
+
 ### array_job_implicit.sh 
 This script illustrates using an index file where we use (unlisted) row numbers to associate with the task ID for each study to be processed. In this case the index file would look something like [this](data/test_index_implicit.csv):
 ```
