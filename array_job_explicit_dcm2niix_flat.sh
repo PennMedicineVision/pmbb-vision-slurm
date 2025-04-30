@@ -13,7 +13,7 @@ module load c3d 2> /dev/null
 
 logger () {
   d=$(date '+%Y-%m-%d %H:%M:%S')
-  echo "$d array_job_explicit_dcm2niix $1 $2 - SLURM=${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
+  echo "$d array_job_explicit_dcm2niix_flat $1 $2 - SLURM=${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 }
 
 usage() { echo "Usage: $0 [-q -h]"; exit 1; }
@@ -33,9 +33,8 @@ start_time=$(date +%s)
 #echo "SLURM_JOB_ID: $SLURM_JOB_ID"
 logger "INFO" "Initializing reconstruction"
 
-# CSV file with: subject_id,study_id
-#index=/cbica/projects/pmbb-vision/info/pmbbid_uid_acc_ordered.csv
-index=/cbica/projects/pmbb-vision/info/pmbbid_uid_acc_ordered_004.csv
+# CSV file with index,directory_name
+index="$1"
 
 if [ ! -e "$index" ]; then
     logger "ERROR" "Index file not found at: $index"
@@ -44,8 +43,9 @@ fi
 
 # here we assume static base directories for input and output
 # we could use additional columns to identify in/out directories if they vary across subjects
-ibase=/cbica/projects/pmbb-vision/dicom
-obase=/cbica/projects/pmbb-vision/subjects
+ibase="$2"
+obase="$3"
+
 
 # add one due to header line in csv file
 offset=$((SLURM_ARRAY_TASK_ID + 1))
@@ -55,19 +55,14 @@ if [ "$index" == "*.parquet" ]; then
   cat="parquet-tools csv $index"
 fi
 
-pmbbid=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $2}')
-study_uid=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $3}')
-acc=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $4}')
+name=$($cat | awk -F ',' -v TaskID=$SLURM_ARRAY_TASK_ID '$1==TaskID {print $2}')
 
 # if additional params are needed, they can be included as columns and extracted here
 
-d1=${pmbbid:4:4} 
-d2=${pmbbid:8:4}
+in_dir="${ibase}/${name}"
+out_dir="${obase}/${name}"
 
-in_dir="${ibase}/${d1}/${d2}/${pmbbid}/${study_uid}"
-out_dir="${obase}/${d1}/${d2}/${pmbbid}/${acc}/${study_uid}"
-
-logger "INFO" "Attempt reconstruction for ID: ${pmbbid} Study: ${study_uid} Accession: ${acc}"
+logger "INFO" "Attempt reconstruction for: ${name}"
 
 # Does input directory exist
 if [ ! -e ${in_dir} ]; then
@@ -86,7 +81,6 @@ mkdir -p $out_dir
 # do stuff
 
 # get subject id
-id=$(echo ${in_dir} | xargs dirname | xargs basename)
 file=$(find ${in_dir} -name *.dcm | head -n 1)
 datetime="NA"
 if [ -e "$file" ]; then 
@@ -95,58 +89,19 @@ if [ -e "$file" ]; then
   datetime=($echo "${date}${time}")
 fi
 
-study_info=$(printf "[%s,%s,%s,%s]" ${pmbbid} ${acc} ${datetime} ${study_uid})
+study_info=$(printf "[%s,%s,%s,%s]" ${name} ${datetime})
 logger "INFO" "Start $study_info"
 
-# report total size of study dicom directory
-#srun -n1 -l du -h -d 0 ${in_dir} | cut -f1 &
-
-source /cbica/projects/pmbb-vision/env/pmbbvision-dicom/bin/activate
-
-# Convert files in each series directory into a nifti volume
-image_dirs=$(ls -d ${in_dir}/[0-9]*)
-#for i in $image_dirs; do
-  # srun -n1 -l dcm2niix -a y -z y -q n -v n -f PMBB%i_%g_%f -o $out_dir ${i} &
-  # srun -n1 -l sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh 
-  #sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh -i ${in_dir} -o ${out_dir} -m 20 -s  
-  #echo "FIXME dicom_to_nii.sh"
-#done
+source $4
 
 if [ -e "$file" ]; then
-  sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh -i ${in_dir} -o ${out_dir} -m 20 -a ${pmbbid}_${acc}_${datetime}
+  sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh -i ${in_dir} -o ${out_dir} -m 20 -a ${name}_${datetime}
 else
   logger "WARNING" "No images found $study_info"
 fi
 
-SAVEIFS=$IFS
-IFS=$(echo -en "\b\n")
-
-# Extract some meta info from report files
-reports=$(ls ${in_dir}/Diagnostic*Report/*.dcm 2> /dev/null)
-nr=0
-
-logger "INFO" "Extract Diagnostic Reports"
-
-find ${in_dir}/Diagnostic* -type f | while read r; do
-#for r in `ls ${in_dir}/Diagnostic*Report/*.dcm`; do
-
-    logger "INFO" "$SLURM_ARRAY_TASK_ID Dicom report $nr: $r"
-    #acc=`dcmdump --search 0008,0050 --search-first $r | awk -F [ '{print $2}' | awk -F ] '{print $1}'`
-    r_json=$(printf "${out_dir}/${pmbbid}_${acc}_${datetime}_report%03d.json" "$rn")
-    r_text=$(printf "${out_dir}/${pmbbid}_${acc}_${datetime}_report%03d.txt" "$rn")
-
-    # run the conversion/s
-    #srun -n1 -l /cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/extract_report.sh $r $r_json $r_text &
-    sh /cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/extract_report.sh "$r" $r_json $r_text 
-    nr=$((nr+1))
-done
-
-IFS=$SAVEIFS
-
 # grab all meta data from dicom headers
-#source /cbica/projects/pmbb-vision/env/pmbbvision-dicom/bin/activate
-#srun -n1 -l python /cbica/projects/pmbb-vision/pkg/dicom_tree/dicom_tree/dicom_tree.py -p ${in_dir} -r 2 -c -o ${out_dir}/${id}_${acc}_study_tree.json &
-python /cbica/projects/pmbb-vision/pkg/dicom_tree/dicom_tree/dicom_tree.py -p ${in_dir} -r 2 -c -o ${out_dir}/${pmbbid}_${acc}_${datetime}_study_tree.json
+python ${DICOMTREEPATH}/dicom_tree/dicom_tree.py -p ${in_dir} -r 2 -c -o ${out_dir}/${name}_${datetime}_study_tree.json
 
 end_time=$(date +%s)
 run_seconds=$((end_time - start_time))
@@ -162,8 +117,6 @@ seconds=$((${seconds} % ${SECONDS_PER_MINUTE}))
 
 run_time=$(printf "%02d:%02d:%02d" ${hours} ${minutes} ${seconds})
 logger "INFO" "Run time: $run_time"
-#end_date=$(date)
-#printf "End (%d %s %s %s %s): %s\n" ${SLURM_ARRAY_TASK_ID} ${pmbbid} ${acc} ${datetime} ${study_uid} "${end_date}"
 logger "INFO" "End $study_info"
 
 exit 0
