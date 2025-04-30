@@ -87,13 +87,15 @@ if [ -e "$file" ]; then
   datetime=($echo "${date}${time}")
 fi
 
-study_info=$(printf "[%s,%s,%s,%s]" ${name} ${datetime})
+study_info=$(printf "[%s,%s]" ${name} ${datetime})
 logger "INFO" "Start $study_info"
 
 source $env
 
 if [ -e "$file" ]; then
-  sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh -i ${in_dir} -o ${out_dir} -m 20 -a ${name}_${datetime}
+  cmd="sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh -i ${in_dir} -o ${out_dir} -m 20 -a ${name}_${datetime}"
+  logger "RUN" "$cmd"
+  $cmd
 else
   logger "WARNING" "No images found $study_info"
 fi
