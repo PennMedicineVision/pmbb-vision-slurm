@@ -1,15 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=array_job_explicit_dcm2niix
-
-#SBATCH --cpus-per-task=1
-#SBATCH --output=/cbica/projects/pmbb-vision/logs/array_job_explicit_dcm2niix_%A_%a.out
-#SBATCH --error=/cbica/projects/pmbb-vision/logs/array_job_explicit_dcm2niix_%A_%a.err
-#SBATCH --array=1-10
+#SBATCH --job-name=dcmflat
 
 # Pass in array at command line due to limits on numbers of tasks per job
 module load dcmtk 2> /dev/null
 module load c3d 2> /dev/null
-#dcmtk=/cbica/projects/pmbb-vision/pkg/dcmtk-3.6.8-linux-x86_64-static/bin
 
 logger () {
   d=$(date '+%Y-%m-%d %H:%M:%S')
