@@ -13,10 +13,14 @@ logger () {
 usage() { echo "Usage: $0 [-q -h]"; exit 1; }
 
 query=0
-while getopts qh flag
+while getopts i:d:o:s:qh flag
 do
   case "${flag}" in
      q) query=1;;
+     i) index=$OPTARG;;
+     d) ibase=$OPTARG;;
+     o) obase=$OPTARG;;
+     s) env=$OPTARG;;
      h) usage;;
   esac
 done
@@ -28,7 +32,7 @@ start_time=$(date +%s)
 logger "INFO" "Initializing reconstruction"
 
 # CSV file with index,directory_name
-index="$1"
+# index=
 
 if [ ! -e "$index" ]; then
     logger "ERROR" "Index file not found at: $index"
@@ -37,8 +41,8 @@ fi
 
 # here we assume static base directories for input and output
 # we could use additional columns to identify in/out directories if they vary across subjects
-ibase="$2"
-obase="$3"
+#ibase="$2"
+#obase="$3"
 
 
 # add one due to header line in csv file
@@ -86,7 +90,7 @@ fi
 study_info=$(printf "[%s,%s,%s,%s]" ${name} ${datetime})
 logger "INFO" "Start $study_info"
 
-source $4
+source $env
 
 if [ -e "$file" ]; then
   sh ${DICOMTREEPATH}/scripts/dicom_to_nii.sh -i ${in_dir} -o ${out_dir} -m 20 -a ${name}_${datetime}
