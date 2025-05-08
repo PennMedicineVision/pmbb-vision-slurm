@@ -127,7 +127,7 @@ for s in `ls -d ${in_dir}/*`; do
       logger "WARNING" "Output already exists. Remove to rerun: ${outidp}"
     fi
 
-  fi
+  done
 
 done
 
