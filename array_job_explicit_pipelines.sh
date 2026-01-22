@@ -25,7 +25,7 @@ runppe=0
 env=""
 force=0
 
-while getopts d:i:o:p:e:qh flag
+while getopts d:i:o:p:e:f:qh flag
 do
   case "${flag}" in
      q) query=1;;
@@ -80,6 +80,9 @@ package=$($cat | awk -F ',' -v TaskID=$offset '$1==TaskID {print $4}')
 module=$($cat | awk -F ',' -v TaskID=$offset '$1==TaskID {print $5}')
 opts=$($cat | awk -F ',' -v TaskID=$offset '$1==TaskID {print $6}')
 
+if [ "${opts}" == "NA" ]; then
+  opts=""
+fi
 
 # Does input exist
 if [ ! -e ${infile} ]; then
