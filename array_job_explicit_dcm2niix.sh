@@ -35,7 +35,8 @@ logger "INFO" "Initializing reconstruction"
 
 # CSV file with: subject_id,study_id
 #index=/cbica/projects/pmbb-vision/info/pmbbid_uid_acc_ordered.csv
-index=/cbica/projects/pmbb-vision/info/pmbbid_uid_acc_ordered_004.csv
+#index=/cbica/projects/pmbb-vision/info/pmbbid_uid_acc_ordered_004.csv
+index=/cbica/projects/pmbb-vision/info/pmbbvision_brain_mr_index.csv
 
 if [ ! -e "$index" ]; then
     logger "ERROR" "Index file not found at: $index"
@@ -44,7 +45,8 @@ fi
 
 # here we assume static base directories for input and output
 # we could use additional columns to identify in/out directories if they vary across subjects
-ibase=/cbica/projects/pmbb-vision/dicom
+#ibase=/cbica/projects/pmbb-vision/dicom
+ibase=/cbica/projects/pmbb-vision/queue
 obase=/cbica/projects/pmbb-vision/subjects
 
 # add one due to header line in csv file
