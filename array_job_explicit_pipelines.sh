@@ -111,9 +111,16 @@ if [ "$package" == "totalsegmentator" ]; then
   srcdir="${BASH_SOURCE[0]}"
   odir=`dirname $outfile`
   oname=`basename $outfile .nii.gz`
-  stats="${env}/bin/python  ${PMBB_VISION_SLURM}/ts_stats_simple.py -i $infile -s $outfile -o ${odir}/${oname}_stats.csv"
-  echo $0
-  echo $srcdir
+  outstats="${odir}/${oname}_stats.csv"
+
+  if [[ "$opts" != *--ml* ]]; then
+    outstats="${odir}/${oname}/pmbb_vision_stats.csv"
+  fi
+
+
+  stats="${env}/bin/python  ${PMBB_VISION_SLURM}/ts_stats_simple.py -i $infile -s $outfile -o ${outstats}"  
+  #echo $0
+  #echo $srcdir
   
   if [ "$module" == "get_phase" ]; then
     cmd="${env}/bin/totalseg_get_phase -i $infile -o $outfile"
