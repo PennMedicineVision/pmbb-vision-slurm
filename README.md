@@ -81,7 +81,7 @@ As in the above example, you will need to set SLURM_ARRAY_TASK_ID_OFFSET for lar
 
 You will also need to pass an environment to use (one is preinstalled for totalsegmentator) so your final call to submit may look something like:
 ```
-sbatch --time=01:00:00 --partition=all --mem=6G --cpus-per-task=1 --array=1-4 /cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/array_job_explicit_pipelines.sh -i /path/to/my_index.csv -e /cbica/projects/pmbb-vision/env/pmbbvision-totalseg/
+sbatch --export=PMBB_VISION_SLURM='/cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/' --time=01:00:00 --partition=all --mem=6G --cpus-per-task=1 --array=1-4 /cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/array_job_explicit_pipelines.sh -i /path/to/my_index.csv -e /cbica/projects/pmbb-vision/env/pmbbvision-totalseg/
 ```
 
 The slurm options may change if you want to run on a GPU, etc...
