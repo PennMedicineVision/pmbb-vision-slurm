@@ -1,10 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=pmbb_pipes
 
-#SBATCH --output=/cbica/projects/pmbb-vision/logs/processing/array_job_explicit_pipelines_%A.out
-#SBATCH --error=/cbica/projects/pmbb-vision/logs/processing/array_job_explicit_pipelines_%A.err
-#SBATCH --array=1-10
-
 # Pass in array at command line due to limits on numbers of tasks per job
 #module load dcmtk 2> /dev/null
 #module load c3d 2> /dev/null
@@ -12,7 +8,7 @@
 
 logger () {
   d=$(date '+%Y-%m-%d %H:%M:%S')
-  echo "$d array_job_explicit_pipelines $1 $2 - SLURM=${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
+  echo "$d array_job_explicit_pipelines SLURM=${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} $1 $2"
 }
 
 usage() { echo "Usage: $0 [-q -h]"; exit 1; }
@@ -101,6 +97,7 @@ logger "ENV" "${env}"
 source ${env}/bin/activate
 
 cmd=""
+stats=""
 
 if [ "$package" == "totalsegmentator" ]; then
 
@@ -111,7 +108,13 @@ if [ "$package" == "totalsegmentator" ]; then
   fi
 
   cmd="${env}/bin/TotalSegmentator -i $infile -o $outfile -ta $module $opts"
-
+  srcdir="${BASH_SOURCE[0]}"
+  odir=`dirname $outfile`
+  oname=`basename $outfile .nii.gz`
+  stats="${env}/bin/python  ${PMBB_VISION_SLURM}/ts_stats_simple.py -i $infile -s $outfile -o ${odir}/${oname}_stats.csv"
+  echo $0
+  echo $srcdir
+  
   if [ "$module" == "get_phase" ]; then
     cmd="${env}/bin/totalseg_get_phase -i $infile -o $outfile"
   fi
@@ -120,6 +123,11 @@ fi
 # Run the pipeline
 logger "CMD" "$cmd"
 $cmd
+if [ "${stats}" != "" ]; then
+  logger "CMD" "$stats"
+  $stats
+fi
+
 
 end_time=$(date +%s)
 run_seconds=$((end_time - start_time))
