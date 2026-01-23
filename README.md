@@ -84,6 +84,8 @@ You will also need to pass an environment to use (one is preinstalled for totals
 sbatch --export=PMBB_VISION_SLURM='/cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/' --time=01:00:00 --partition=all --mem=6G --cpus-per-task=1 --array=1-4 /cbica/projects/pmbb-vision/pkg/pmbb-vision-slurm/array_job_explicit_pipelines.sh -i /path/to/my_index.csv -e /cbica/projects/pmbb-vision/env/pmbbvision-totalseg/
 ```
 
+In addition to the specified output file, this will also generate a stats file. For exampple, for output1.nii.gz it will generate output1_stats.csv in the same directory as output1.nii.gz
+
 The slurm options may change if you want to run on a GPU, etc...
 
 
